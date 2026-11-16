@@ -1,0 +1,26 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Place {
+  id         String   @id @default(uuid())
+  title      String
+  country    String
+  category   String   // e.g., "Beach", "Mountains", "Historic", "City", "Hidden Gem", "Road Trip"
+  targetYear Int?
+  budget     Float?
+  status     String   @default("WISHLIST") // "WISHLIST" | "PLANNING" | "VISITED"
+  isFavorite Boolean  @default(false)
+  imageUrl   String   // Stores local path e.g. "/uploads/171829283-beach.jpg"
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("places")
+}
+
