@@ -16,7 +16,7 @@ model Place {
   budget     Float?
   status     String   @default("WISHLIST") // "WISHLIST" | "PLANNING" | "VISITED"
   isFavorite Boolean  @default(false)
-  imageUrl   String   // Stores local path e.g. "/uploads/171829283-beach.jpg"
+  imageUrl   String   // Stores image URL (e.g. Vercel Blob URL or remote image)
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
