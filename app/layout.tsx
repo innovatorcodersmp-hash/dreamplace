@@ -36,13 +36,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark overflow-x-hidden max-w-full">
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="relative bg-slate-950 text-slate-100 antialiased min-h-screen selection:bg-pink-500 selection:text-white">
+      <body className="relative bg-slate-950 text-slate-100 antialiased min-h-screen selection:bg-pink-500 selection:text-white overflow-x-hidden max-w-full w-full">
         {/* Ambient Glowing Background Orbs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="ambient-glow-1" />
@@ -51,7 +51,7 @@ export default function RootLayout({
         </div>
 
         {/* Main Content Area */}
-        <div className="relative z-10 flex flex-col min-h-screen">
+        <div className="relative z-10 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden min-w-0">
           {children}
         </div>
       </body>

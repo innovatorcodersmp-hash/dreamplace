@@ -81,7 +81,7 @@ export default function DashboardPage() {
   }, [places, searchQuery, statusFilter, selectedCategory, onlyFavorites]);
 
   return (
-    <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-4">
+    <main className="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-7 space-y-3 sm:space-y-4 overflow-x-hidden max-w-full min-w-0">
       {/* Inline Compact Header Stats */}
       <StatsHeader
         places={places}
@@ -112,7 +112,7 @@ export default function DashboardPage() {
           </p>
         </div>
       ) : filteredPlaces.length === 0 ? (
-        <div className="py-14 flex flex-col items-center justify-center text-center px-4 rounded-2xl glass-card border border-white/10">
+        <div className="py-14 flex flex-col items-center justify-center text-center px-4 rounded-2xl glass-card border border-white/10 w-full min-w-0">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-white/15 flex items-center justify-center text-pink-400 mb-3 shadow-inner">
             <Compass className="w-7 h-7 stroke-[1.8] animate-float" />
           </div>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0 max-w-full">
           {filteredPlaces.map((place) => (
             <PlaceCard
               key={place.id}
