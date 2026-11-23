@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
+// 
 // GET /api/places - List all places ordered by createdAt desc
 export async function GET() {
   try {
