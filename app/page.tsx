@@ -165,6 +165,16 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Thumb-Friendly Floating Action Button for Mobile */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        aria-label="Add New Place"
+        className="fixed bottom-5 right-5 sm:hidden z-40 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 text-white font-semibold text-sm shadow-xl shadow-rose-500/40 hover:scale-105 active:scale-95 transition-all"
+      >
+        <Plus className="w-5 h-5 stroke-[2.5]" />
+        <span>Add Place</span>
+      </button>
+
       {/* Compact Add Place Modal */}
       <AddPlaceModal
         isOpen={isModalOpen}

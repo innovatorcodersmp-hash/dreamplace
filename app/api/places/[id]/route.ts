@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { del } from "@vercel/blob";
+import { unlink } from "fs/promises";
+import path from "path";
 
-function isVercelBlobUrl(url: string | null | undefined): boolean {
-  if (!url) return false;
-  return (
-    url.includes(".public.blob.vercel-storage.com") ||
-    url.includes("blob.vercel-storage.com")
-  );
-}
-
-// PATCH /api/places/[id] - Update status, isFavorite, or other place details
+// PATCH /api/places/[id] - Update status, isFavorite, or details
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -51,17 +44,19 @@ export async function PATCH(
       data: updateData,
     });
 
-    // Clean up old Vercel Blob image if a new image was uploaded and set
+    // Clean up old local image file if a new image was uploaded and set
     if (
       existingPlace &&
       existingPlace.imageUrl &&
       existingPlace.imageUrl !== body.imageUrl &&
-      isVercelBlobUrl(existingPlace.imageUrl)
+      existingPlace.imageUrl.startsWith("/uploads/")
     ) {
       try {
-        await del(existingPlace.imageUrl);
-      } catch (blobError) {
-        console.error("Failed to delete old blob from Vercel Blob storage:", blobError);
+        const oldFileName = existingPlace.imageUrl.replace(/^\/uploads\//, "");
+        const oldFilePath = path.join(process.cwd(), "public", "uploads", oldFileName);
+        await unlink(oldFilePath);
+      } catch (err) {
+        console.warn("Could not delete old image:", err);
       }
     }
 
@@ -75,7 +70,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/places/[id] - Remove place from database
+// DELETE /api/places/[id] - Delete record and remove image file from /public/uploads/
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -95,16 +90,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Place not found" }, { status: 404 });
     }
 
+    // Delete record from database
     await prisma.place.delete({
       where: { id },
     });
 
-    // Clean up Vercel Blob storage if image was hosted on Vercel Blob
-    if (isVercelBlobUrl(existingPlace.imageUrl)) {
+    // Remove local file if it resides in /public/uploads/
+    if (existingPlace.imageUrl && existingPlace.imageUrl.startsWith("/uploads/")) {
+      const fileName = existingPlace.imageUrl.replace(/^\/uploads\//, "");
+      const filePath = path.join(process.cwd(), "public", "uploads", fileName);
       try {
-        await del(existingPlace.imageUrl);
-      } catch (blobError) {
-        console.error("Failed to delete blob from Vercel Blob storage:", blobError);
+        await unlink(filePath);
+      } catch (fileErr) {
+        console.warn("Could not delete local file:", filePath, fileErr);
       }
     }
 

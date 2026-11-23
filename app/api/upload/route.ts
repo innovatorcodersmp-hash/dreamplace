@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
+// POST /api/upload - Multipart Form Data upload to /public/uploads
 export async function POST(request: NextRequest) {
   try {
     const data = await request.formData();
@@ -13,25 +15,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sanitize filename and create unique pathname: places/${Date.now()}-${cleanFileName}
-    const cleanFileName = (file.name || "place.jpg").replace(/[^a-zA-Z0-9.-]/g, "_");
-    const pathname = `places/${Date.now()}-${cleanFileName}`;
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    // Upload to Vercel Blob storage with public access
-    const blob = await put(pathname, file, {
-      access: "public",
-    });
+    // Sanitize filename and create unique timestamped filename
+    const originalName = file.name || "place.jpg";
+    const cleanFileName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const uniqueFileName = `${Date.now()}-${cleanFileName}`;
 
+    // Target directory: public/uploads
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
+
+    const filePath = path.join(uploadDir, uniqueFileName);
+    await writeFile(filePath, buffer);
+
+    // Return public relative URL
     return NextResponse.json(
       {
         success: true,
-        url: blob.url,
-        filename: cleanFileName,
+        url: `/uploads/${uniqueFileName}`,
+        filename: uniqueFileName,
       },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("Failed to upload image to Vercel Blob:", error);
+    console.error("Local file upload failed:", error);
     return NextResponse.json(
       { error: error?.message || "File upload failed" },
       { status: 500 }

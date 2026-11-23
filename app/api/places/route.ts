@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/places - List all places sorted by creation date (newest first)
+// GET /api/places - List all places ordered by createdAt desc
 export async function GET() {
   try {
     const places = await prisma.place.findMany({
@@ -20,7 +20,7 @@ export async function GET() {
   }
 }
 
-// POST /api/places - Create a new dream place
+// POST /api/places - Validate and create new place record in PostgreSQL
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -66,4 +66,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

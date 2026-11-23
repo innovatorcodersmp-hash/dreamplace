@@ -188,7 +188,7 @@ export const AddPlaceModal: React.FC<AddPlaceModalProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 12 }}
             transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-            className="relative w-full max-w-xl rounded-2xl glass-card bg-slate-900/95 border border-white/20 p-5 sm:p-6 shadow-2xl z-10 overflow-hidden"
+            className="relative max-w-lg w-full mx-3 max-h-[92vh] overflow-y-auto rounded-2xl glass-card bg-slate-900/95 border border-white/20 p-4 sm:p-5 shadow-2xl z-10"
           >
             {/* Top gradient highlight */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400" />
