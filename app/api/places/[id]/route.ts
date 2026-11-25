@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { unlink } from "fs/promises";
-import path from "path";
+import { del } from "@vercel/blob";
+
+async function deleteBlobIfRemote(url: string | null | undefined) {
+  if (!url || !url.startsWith("https://")) return;
+  try {
+    await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+  } catch (err) {
+    console.warn("Could not delete blob:", url, err);
+  }
+}
 
 // PATCH /api/places/[id] - Update status, isFavorite, or details
 export async function PATCH(
@@ -44,20 +52,13 @@ export async function PATCH(
       data: updateData,
     });
 
-    // Clean up old local image file if a new image was uploaded and set
+    // Clean up old Vercel Blob image if a new image was uploaded and set
     if (
       existingPlace &&
       existingPlace.imageUrl &&
-      existingPlace.imageUrl !== body.imageUrl &&
-      existingPlace.imageUrl.startsWith("/uploads/")
+      existingPlace.imageUrl !== body.imageUrl
     ) {
-      try {
-        const oldFileName = existingPlace.imageUrl.replace(/^\/uploads\//, "");
-        const oldFilePath = path.join(process.cwd(), "public", "uploads", oldFileName);
-        await unlink(oldFilePath);
-      } catch (err) {
-        console.warn("Could not delete old image:", err);
-      }
+      await deleteBlobIfRemote(existingPlace.imageUrl);
     }
 
     return NextResponse.json(updatedPlace, { status: 200 });
@@ -70,7 +71,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/places/[id] - Delete record and remove image file from /public/uploads/
+// DELETE /api/places/[id] - Delete record and remove image from Vercel Blob
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -95,16 +96,8 @@ export async function DELETE(
       where: { id },
     });
 
-    // Remove local file if it resides in /public/uploads/
-    if (existingPlace.imageUrl && existingPlace.imageUrl.startsWith("/uploads/")) {
-      const fileName = existingPlace.imageUrl.replace(/^\/uploads\//, "");
-      const filePath = path.join(process.cwd(), "public", "uploads", fileName);
-      try {
-        await unlink(filePath);
-      } catch (fileErr) {
-        console.warn("Could not delete local file:", filePath, fileErr);
-      }
-    }
+    // Remove remote blob if imageUrl is an HTTPS URL
+    await deleteBlobIfRemote(existingPlace.imageUrl);
 
     return NextResponse.json(
       { success: true, message: "Place deleted successfully" },
